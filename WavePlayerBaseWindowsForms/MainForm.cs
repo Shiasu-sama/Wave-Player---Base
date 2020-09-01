@@ -1,40 +1,130 @@
-﻿using System;
+using System;
+using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows;
-using Microsoft.Win32;
 
-namespace WavePlayerBase
+namespace WavePlayerBaseWindowsForms
 {
-    public partial class MainWindow : Window
+    public class MainForm : Form
     {
-        private AudioWaveOutPlayer Player;
-        private AudioWaveFormat Format;
-        private Stream AudioStream;
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.Container components = null;
+        private System.Windows.Forms.Button PlayButton;
+        private System.Windows.Forms.Button StopButton;
+        private System.Windows.Forms.OpenFileDialog OpenDlg;
+        private System.Windows.Forms.Button OpenButton;
 
-        public MainWindow()
+        public MainForm()
         {
+            //
+            // Required for Windows Form Designer support
+            //
             InitializeComponent();
         }
 
-        private void ButtonOpen_Click(object sender, System.EventArgs e)
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
         {
-            OpenFileDialog mainOpenFileDialog = new OpenFileDialog
+            if (disposing)
             {
-                Title = "Select a valid 'Waveform Audio File' (.wav)",
-                Filter = "Waveform Audio Files|*.wav;",
-                DefaultExt = ".wav",
-                Multiselect = false
-            };
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
 
-            bool? dialogResult = mainOpenFileDialog.ShowDialog();
-            if (dialogResult == true)
+        #region Windows Form Designer generated code
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.PlayButton = new System.Windows.Forms.Button();
+            this.StopButton = new System.Windows.Forms.Button();
+            this.OpenButton = new System.Windows.Forms.Button();
+            this.OpenDlg = new System.Windows.Forms.OpenFileDialog();
+            this.SuspendLayout();
+            // 
+            // PlayButton
+            // 
+            this.PlayButton.Location = new System.Drawing.Point(88, 16);
+            this.PlayButton.Name = "PlayButton";
+            this.PlayButton.Size = new System.Drawing.Size(72, 24);
+            this.PlayButton.TabIndex = 0;
+            this.PlayButton.Text = "Play";
+            this.PlayButton.Click += new System.EventHandler(this.PlayButton_Click);
+            // 
+            // StopButton
+            // 
+            this.StopButton.Location = new System.Drawing.Point(168, 16);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(72, 24);
+            this.StopButton.TabIndex = 1;
+            this.StopButton.Text = "Stop";
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
+            // OpenButton
+            // 
+            this.OpenButton.Location = new System.Drawing.Point(8, 16);
+            this.OpenButton.Name = "OpenButton";
+            this.OpenButton.Size = new System.Drawing.Size(72, 24);
+            this.OpenButton.TabIndex = 2;
+            this.OpenButton.Text = "Open";
+            this.OpenButton.Click += new System.EventHandler(this.OpenButton_Click);
+            // 
+            // OpenDlg
+            // 
+            this.OpenDlg.DefaultExt = "wav";
+            this.OpenDlg.Filter = "WAV files|*.wav";
+            // 
+            // MainForm
+            // 
+            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.ClientSize = new System.Drawing.Size(251, 47);
+            this.Controls.Add(this.OpenButton);
+            this.Controls.Add(this.StopButton);
+            this.Controls.Add(this.PlayButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "MainForm";
+            this.Text = "Wave Audio Player";
+            this.Closing += new System.ComponentModel.CancelEventHandler(this.MainForm_Closing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.ResumeLayout(false);
+
+        }
+        #endregion
+
+        private AudioWaveOutPlayer Player;
+        private AudioWaveFormat Format;
+        private AudioWaveStream AudioStream;
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OpenButton_Click(object sender, System.EventArgs e)
+        {
+            OpenFile();
+        }
+        private void OpenFile()
+        {
+            if (OpenDlg.ShowDialog() == DialogResult.OK)
             {
                 CloseFile();
                 try
                 {
-                    AudioWaveStream stream = new AudioWaveStream(mainOpenFileDialog.FileName);
+                    AudioWaveStream stream = new AudioWaveStream(OpenDlg.FileName);
                     if (stream.Length <= 0)
                     {
                         throw new Exception("Invalid 'Waveform Audio File' (.wav) file");
@@ -53,6 +143,42 @@ namespace WavePlayerBase
                 }
             }
         }
+
+        private void PlayButton_Click(object sender, System.EventArgs e)
+        {
+            long zeroLong = 0L;
+            int deviceID = -1;
+            int bufferSize = 16384;
+            int bufferCount = 3;
+
+            Stop();
+            if (AudioStream != null)
+            {
+                AudioStream.Position = zeroLong;
+                BufferFillEventHandler fillerEvent = new BufferFillEventHandler(Filler);
+                Player = new AudioWaveOutPlayer(deviceID, Format, bufferSize, bufferCount, fillerEvent);
+            }
+        }
+
+        private void StopButton_Click(object sender, System.EventArgs e)
+        {
+            Stop();
+        }
+        private void Stop()
+        {
+            if (Player != null)
+            {
+                try
+                {
+                    Player.Dispose();
+                }
+                finally
+                {
+                    Player = null;
+                }
+            }
+        }
+
         private void CloseFile()
         {
             Stop();
@@ -68,27 +194,18 @@ namespace WavePlayerBase
                 }
             }
         }
-        private void ButtonPlay_Click(object sender, System.EventArgs e)
+        private void MainForm_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            long zeroLong = 0L;
-            int deviceID = -1;
-            int bufferSize = 16384;
-            int bufferCount = 3;
-
-            Stop();
-            if (AudioStream != null)
-            {
-                AudioStream.Position = zeroLong;
-                BufferFillEventHandler fillerEvent = new BufferFillEventHandler(Filler);
-                Player = new AudioWaveOutPlayer(deviceID, Format, bufferSize, bufferCount, fillerEvent);
-            }
+            CloseFile();
         }
+
         private void Filler(IntPtr dataPointer, int size)
         {
             int zero = 0;
             byte zeroByte = (byte)0;
 
             byte[] bytes = new byte[size];
+
             if (AudioStream != null)
             {
                 int position = zero;
@@ -111,24 +228,6 @@ namespace WavePlayerBase
                 }
             }
             Marshal.Copy(bytes, zero, dataPointer, size);
-        }
-        private void ButtonStop_Click(object sender, System.EventArgs e)
-        {
-            Stop();
-        }
-        private void Stop()
-        {
-            if (Player != null)
-            {
-                try
-                {
-                    Player.Dispose();
-                }
-                finally
-                {
-                    Player = null;
-                }
-            }
         }
     }
 

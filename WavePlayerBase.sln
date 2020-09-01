@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1231
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavePlayerBase", "WavePlayerBase\WavePlayerBase.csproj", "{14068313-C8E6-4342-B7BE-E25BF510922A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavePlayerBaseWindowsForms", "WavePlayerBaseWindowsForms\WavePlayerBaseWindowsForms.csproj", "{9008F88D-DC81-4957-8B9E-2F6192FA0479}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{14068313-C8E6-4342-B7BE-E25BF510922A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14068313-C8E6-4342-B7BE-E25BF510922A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14068313-C8E6-4342-B7BE-E25BF510922A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9008F88D-DC81-4957-8B9E-2F6192FA0479}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9008F88D-DC81-4957-8B9E-2F6192FA0479}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9008F88D-DC81-4957-8B9E-2F6192FA0479}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9008F88D-DC81-4957-8B9E-2F6192FA0479}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
